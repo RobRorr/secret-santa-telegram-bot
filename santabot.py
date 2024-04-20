@@ -1,180 +1,115 @@
-import os
-import json
 import telebot
 import validators
-import random
-from setconfig import setconfig
 
-#Set configuration
-config_file_path = os.path.normpath('config.ini')
-config = setconfig(config_file_path)
-json_file_path = config.get('json_file_path')
-telegram_token = config.get('telegram_token')
-admin_id = int(config.get('admin'))
+import management
+import setconfiguration
+from languages import dictionary
 
-bot = telebot.TeleBot(telegram_token)
+bot = telebot.TeleBot(setconfiguration.telegram_token)
+language = setconfiguration.language
 
 #Standard commad
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=[dictionary[language]['command_start']])
 def start(message):
-    if message.chat.type == 'group':
-        return
-    response = "Welcome to our Secret Santa!"
-    bot.reply_to(message, response)
+    if not message.chat.type == 'group':
+        bot.reply_to(message, dictionary[language]['welcome'])
 
-@bot.message_handler(commands=['help'])
+@bot.message_handler(commands=[dictionary[language]['command_help']])
 def start(message):
-    if message.chat.type == 'group':
-        return
-    response = "Use '/addme' to add yourself to the list of participants and follow the steps, at the right time you will receive a message with the name of your recipient and their wish list if they have one. Everyone can only add themselves. In case of errors use '/removeme' and you can redo the procedure. Every other message will be ignored, use '/start' to check that the bot is awake."
-    bot.reply_to(message, response)
+    if not message.chat.type == 'group':
+        bot.reply_to(message, dictionary[language]['help_response'])
 
-#Add user to list
-@bot.message_handler(commands=['addme'])
+#Add user to group
+@bot.message_handler(commands=[dictionary[language]['command_add_me']])
 def start(message):
-    if message.chat.type == 'group':
-        return
-    if os.path.exists(json_file_path):
-        try:
-            with open(json_file_path, 'r') as f:
-                data = json.load(f)
-            list = data['list']
-            if len(list)>0:
-                chat_id_list = take_chat_id_list(list)
-                if message.chat.id in chat_id_list:
-                    bot.reply_to(message, 'You are already on the list')
-                    return
-        except Exception as e:
-            bot.reply_to(message, 'oooops')
-    msg = bot.reply_to(message, 'Insert your name')
-    bot.register_next_step_handler(msg, name_step)
+    if not message.chat.type == 'group':
+        msg = bot.reply_to(message, dictionary[language]['group_name_entry'])
+        bot.register_next_step_handler(msg, group_name_step)
 
-#Remove user from list
-@bot.message_handler(commands=['removeme'])
-def start(message):
-    if message.chat.type == 'group':
-        return
-    if os.path.exists(json_file_path):
-        with open(json_file_path, 'r') as f:
-            data = json.load(f)
-        data['list'] = remove_participant(data['list'], message.chat.id)
-        with open(json_file_path, 'w') as f:
-            json.dump(data, f)
-    response = "Done!"
-    bot.reply_to(message, response)
-
-#Admin commands
-@bot.message_handler(commands=['startsecretsanta'])
-def start(message):
-    if message.chat.id == admin_id:
-        startsecretsanta(message)
-        bot.reply_to(message, "Let's get started")
-    else:
-        bot.reply_to(message, 'You are not the admin')
-
-@bot.message_handler(commands=['removeall'])
-def start(message):
-    if message.chat.id == admin_id:
-        remove_all_participants(message)
-    else:
-        bot.reply_to(message, 'You are not the admin')
-
-@bot.message_handler(commands=['removeparticipant'])
-def start(message):
-    if message.chat.id == admin_id:
-        msg = bot.reply_to(message, 'Insert the id')
-        bot.register_next_step_handler(msg, remove_id_step)
-    else:
-        bot.reply_to(message, 'You are not the admin')
-
-#Participant management
 #2nd step of /addme
-def name_step(message):
-    name = message.text
-    msg = bot.reply_to(message, 'If you want to add the wishlist, please insert the link')
-    bot.register_next_step_handler(msg, link_step, name)
+def group_name_step(message):
+    data = management.read_data(message)
+    list = message.text
+    if list in data:
+        if len(list)>0:
+            chat_id_list = management.take_chat_id_list(data[list])
+            if message.chat.id in chat_id_list:
+                bot.reply_to(message, dictionary[language]['alredy_in'])
+                return
+        msg = bot.reply_to(message, dictionary[language]['name_entry'])
+        bot.register_next_step_handler(msg, name_user_step, list)
+    else:
+        bot.reply_to(message, dictionary[language]['group_no_exists'])
 
 #3rd step of /addme
-def link_step(message, name):
-    try:
-        chat_id = message.chat.id
-        link = message.text
-        if os.path.exists(json_file_path):
-            try:
-                with open(json_file_path, 'r') as f:
-                    data = json.load(f)
-            except Exception as e:
-                bot.reply_to(message, 'oooops')
-        else:
-            data = {}
-        if 'list' in data:
-            element = [chat_id, name, link]
-            data['list'] = add_participant(data['list'], element)
-        else:
-            element = [chat_id, name, link]
-            data['list'] = [element]
-        with open(json_file_path, 'w') as f:
-            json.dump(data, f)
-        response = "Done!"
-        if not validators.url(link):
-            msg = bot.reply_to(message, 'You are in! (No wishlist saved)')
-            return
-        else:
-            bot.send_message(chat_id, 'You are in!')
-    except Exception as e:
-        bot.reply_to(message, 'oooops')
+def name_user_step(message, list):
+    msg = bot.reply_to(message, dictionary[language]['wish_list'])
+    bot.register_next_step_handler(msg, link_step, list, message.text)
 
-def take_chat_id_list(list_of_triples):
-    return [triple[0] for triple in list_of_triples]
+#4th step of /addme
+def link_step(message, list, username):
+    data = management.read_data(message)
+    element = [message.chat.id, username, message.text]
+    data[list].append(element)
+    management.write_data(data)
+    if not validators.url(message.text):
+        bot.reply_to(message, dictionary[language]['confirmation_no_list'])
+    else:
+        bot.reply_to(message, dictionary[language]['confirmation_list'])
 
-def add_participant(list, element):
-    list.append(element)
-    return list
+#Remove user from all lists
+@bot.message_handler(commands=[dictionary[language]['command_remove_me']])
+def start(message):
+    if not message.chat.type == 'group':
+        data = management.read_data(message)
+        for list in data:
+            data[list] = management.remove_participant(data[list], message.chat.id)
+        management.write_data(data)
+        bot.reply_to(message, dictionary[language]['done'])
 
-def remove_participant(list, element):
-    list = [t for t in list if t[0] != element]
-    return list
+##Admin commands
+#Create list
+@bot.message_handler(commands=[dictionary[language]['command_create_group']])
+def start(message):
+    if message.chat.id == setconfiguration.admin_id:
+        msg = bot.reply_to(message, dictionary[language]['group_name_entry'])
+        bot.register_next_step_handler(msg, management.create_list_step)
+    else:
+        bot.reply_to(message, dictionary[language]['admin_negative_response'])
 
-#Admin management
-def remove_all_participants(message):
-    if os.path.exists(json_file_path):
-        with open(json_file_path, 'r') as f:
-            data = json.load(f)
-        data['list'] = []
-        with open(json_file_path, 'w') as f:
-            json.dump(data, f)
-    response = "Done!"
-    bot.reply_to(message, response)
+#Start secret santa
+@bot.message_handler(commands=[dictionary[language]['command_start_secret_santa']])
+def start(message):
+    if message.chat.id == setconfiguration.admin_id:
+        management.startsecretsanta(message)
+        bot.reply_to(message, dictionary[language]['secret_santa'])
+    else:
+        bot.reply_to(message, dictionary[language]['admin_negative_response'])
 
-def remove_id_step(message):
-    try:
-        if os.path.exists(json_file_path):
-            with open(json_file_path, 'r') as f:
-                data = json.load(f)
-            data['list'] = remove_participant(data['list'], message.text)
-            with open(json_file_path, 'w') as f:
-                json.dump(data, f)
-        response = "Done!"
-        bot.reply_to(message, response)
-    except Exception as e:
-        bot.reply_to(message, 'oooops')
+#Remove all partecipants from all lists
+@bot.message_handler(commands=[dictionary[language]['command_remove_all']])
+def start(message):
+    if message.chat.id == setconfiguration.admin_id:
+        management.remove_all_participants(message)
+    else:
+        bot.reply_to(message, dictionary[language]['admin_negative_response'])
 
-def startsecretsanta(message):
-    try:
-        if not os.path.exists(json_file_path):
-            return
-        with open(json_file_path, 'r') as f:
-            data = json.load(f)
-        list = data['list']
-        random.shuffle(list)
-        for i in range(len(list)):
-            recipient = list[(i + 1) % len(list)]
-            if not validators.url(recipient[2]):
-                bot.send_message(list[i][0], f"Your gift recipient is {recipient[1]}")
-            else:
-                bot.send_message(list[i][0], f"Your gift recipient is {recipient[1]} {recipient[2]}")
-    except Exception as e:
-        bot.reply_to(message, 'oooops')   
+#Remove partecipant from all lists
+@bot.message_handler(commands=[dictionary[language]['command_remove_participant']])
+def start(message):
+    if message.chat.id == setconfiguration.admin_id:
+        msg = bot.reply_to(message, dictionary[language]['id_entry'])
+        bot.register_next_step_handler(msg, management.remove_id_step)
+    else:
+        bot.reply_to(message, dictionary[language]['admin_negative_response'])
+
+#Check admin
+@bot.message_handler(commands=[dictionary[language]['command_check_admin']])
+def start(message):
+    if message.chat.id == setconfiguration.admin_id:
+        bot.reply_to(message, dictionary[language]['admin_positive_response'])
+    else:
+        bot.reply_to(message, dictionary[language]['admin_negative_response'])
 
 #Start bot
 bot.polling()
