@@ -1,5 +1,5 @@
 # secret-santa-telegram-bot
-A simple Telegram bot that manages the Secret Santa for a single group. 
+A simple Telegram bot that manages the Secret Santa. 
 
 # Usage
 The admin creates the group.
