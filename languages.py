@@ -8,7 +8,8 @@ dictionary = {
         "command_remove_me": "removeme",
         "command_remove_participant": "removeparticipant",
         "command_start": "start",
-        "command_start_secret_santa": "startsecretsanta",
+        "command_secret_santa": "secretsanta",
+        "command_secret_santa_all": "secretsantaall",
 
         "admin_negative_response": "You are not the administrator",
         "admin_positive_response": "You are the administrator",
@@ -42,7 +43,8 @@ dictionary = {
         "command_remove_me": "rimuovimi",
         "command_remove_participant": "rimuovipartecipante",
         "command_start": "avvio",
-        "command_start_secret_santa": "avviasecretsanta",
+        "command_secret_santa": "secretsanta",
+        "command_secret_santa_all": "secretsantatutti",
 
         "admin_negative_response": "Non sei l'amministratore",
         "admin_positive_response": "Sei l'amministratore",

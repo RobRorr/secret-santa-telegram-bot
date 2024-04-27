@@ -51,7 +51,7 @@ def link_step(message, list, username):
     data = management.read_data(message)
     element = [message.chat.id, username, message.text]
     data[list].append(element)
-    management.write_data(data)
+    management.write_data(message, data)
     if not validators.url(message.text):
         bot.reply_to(message, dictionary[language]['confirmation_no_list'])
     else:
@@ -64,7 +64,7 @@ def start(message):
         data = management.read_data(message)
         for list in data:
             data[list] = management.remove_participant(data[list], message.chat.id)
-        management.write_data(data)
+        management.write_data(message, data)
         bot.reply_to(message, dictionary[language]['done'])
 
 ##Admin commands
@@ -78,10 +78,19 @@ def start(message):
         bot.reply_to(message, dictionary[language]['admin_negative_response'])
 
 #Start secret santa
-@bot.message_handler(commands=[dictionary[language]['command_start_secret_santa']])
+@bot.message_handler(commands=[dictionary[language]['command_secret_santa']])
+def start_single_group(message):
+    if message.chat.id == setconfiguration.admin_id:
+        msg = bot.reply_to(message, dictionary[language]['group_name_entry'])
+        bot.register_next_step_handler(msg, management.secretsanta)
+    else:
+        bot.reply_to(message, dictionary[language]['admin_negative_response'])
+
+#Start secret santa
+@bot.message_handler(commands=[dictionary[language]['command_secret_santa_all']])
 def start(message):
     if message.chat.id == setconfiguration.admin_id:
-        management.startsecretsanta(message)
+        management.secretsantaall(message)
         bot.reply_to(message, dictionary[language]['secret_santa'])
     else:
         bot.reply_to(message, dictionary[language]['admin_negative_response'])
