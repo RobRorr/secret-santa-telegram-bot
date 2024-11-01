@@ -1,6 +1,7 @@
-import os
 import json
+import os
 import random
+
 import telebot
 import validators
 
@@ -11,69 +12,75 @@ bot = telebot.TeleBot(setconfiguration.telegram_token)
 language = setconfiguration.language
 
 
-def add_participant(list, element):
-    return list.append(element)
+def add_participant(participant_list, element):
+    return participant_list.append(element)
+
 
 def create_list_step(message):
-    listname = message.text
     if os.path.exists(setconfiguration.json_file_path):
         data = read_data(message)
-        if listname in data:
+        if message.text in data:
             bot.reply_to(message, dictionary[language]['group_exists'])
             return
         else:
-            data[listname] = []
+            data[message.text] = []
             write_data(message, data)
             bot.reply_to(message, dictionary[language]['group_added'])
             return
     else:
-        data = {}
-        data[listname] = []
+        data = {message.text: []}
         write_data(message, data)
         bot.reply_to(message, dictionary[language]['group_added'])
 
+
 def remove_all_participants(message):
     data = read_data(message)
-    for list in data:
-        data[list] = []
+    for participant_list in data:
+        data[participant_list] = []
     write_data(message, data)
     bot.reply_to(message, dictionary[language]['done'])
+
 
 def remove_id_step(message):
     data = read_data(message)
-    for list in data:
-        data[list] = remove_participant(data[list], message.text)
+    for participant_list in data:
+        data[participant_list] = remove_participant(data[participant_list], message.text)
     write_data(message, data)
     bot.reply_to(message, dictionary[language]['done'])
 
-def remove_participant(list, element):
-    return [triple for triple in list if triple[0] != int(element)]
 
-def secretsanta(message):
+def remove_participant(participant_list, element):
+    return [triple for triple in participant_list if triple[0] != int(element)]
+
+
+def secret_santa(message):
     data = read_data(message)
-    if(message.text in data):
-        startsecretsanta(data[message.text])
+    if message.text in data:
+        start_secret_santa(data[message.text])
     else:
         bot.reply_to(message, dictionary[language]['group_no_exists'])
 
-def secretsantaall(message):
+
+def secret_santa_all(message):
     data = read_data(message)
     for l in data:
-        startsecretsanta(data[l])
+        start_secret_santa(data[l])
 
-def startsecretsanta(list):
-    random.shuffle(list)
-    for i in range(len(list)):
-        recipient = list[(i + 1) % len(list)]
+
+def start_secret_santa(participant_list):
+    random.shuffle(participant_list)
+    for i in range(len(participant_list)):
+        recipient = participant_list[(i + 1) % len(participant_list)]
         if not validators.url(recipient[2]):
             msg = dictionary[language]['recipient'] + recipient[1]
         else:
             msg = dictionary[language]['recipient'] + recipient[1] + " : " + recipient[2]
-        bot.send_message(list[i][0], msg)
+        bot.send_message(participant_list[i][0], msg)
 
 
 def take_chat_id_list(list_of_triples):
     return [triple[0] for triple in list_of_triples]
+
 
 def read_data(message):
     try:
@@ -82,6 +89,7 @@ def read_data(message):
     except Exception as e:
         bot.reply_to(message, dictionary[language]['error'])
     return data
+
 
 def write_data(message, data):
     try:

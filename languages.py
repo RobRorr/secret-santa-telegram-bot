@@ -23,10 +23,10 @@ dictionary = {
         "group_name_entry": "Insert the group name",
         "group_no_exists": "The group doesn't exist",
         "help_response": "Use /addme to add yourself to the group of participants and follow the instructions until the confirmation of insertion, "
-                    "at the right time you will receive a message with your recipient's name and wish list if he has one. "
-                    "Everyone can only add themselves. In case of errors, use /remove me and you can redo the procedure. "
-                    "Everyone can join multiple groups, /remove me will remove you from all groups."
-                    "Any other messages will be ignored, use /start to verify that the bot is active.",
+                         "at the right time you will receive a message with your recipient's name and wish list if he has one. "
+                         "Everyone can only add themselves. In case of errors, use /remove me and you can redo the procedure. "
+                         "Everyone can join multiple groups, /remove me will remove you from all groups."
+                         "Any other messages will be ignored, use /start to verify that the bot is active.",
         "id_entry": "Insert the ID",
         "name_entry": "Insert your name",
         "recipient": "Your recipient is ",
@@ -57,11 +57,11 @@ dictionary = {
         "group_exists": "Il gruppo esiste già",
         "group_name_entry": "Inserisci il nome del gruppo",
         "group_no_exists": "Gruppo inesistente",
-        "help_response": "Usa /aggiungimi per aggiungerti al gruppo dei partecipanti e segui le istruzioni, fino alla conferma di inserimento, "
-                    "al momento giusto riceverai un messaggio con il nome del tuo destinatario e la lista desideri se ne ha una. "
-                    "Ognuno può aggiungere solo se stesso. In caso di errori usa /rimuovimi e potrai rifare la procedura. "
-                    "Ognuno può unirsi a più gruppi, /rimuovimi ti toglierà da tutti i grupppi. "
-                    "Ogni altro messaggio sarà ignorato, usa /avvio per verificare che il bot sia attivo.",
+        "help_response": "Usa /aggiungimi per aggiungerti al gruppo dei partecipanti e segui le istruzioni fino alla conferma di inserimento, "
+                         "al momento giusto riceverai un messaggio con il nome del tuo destinatario e la lista desideri se ne ha una. "
+                         "Ognuno può aggiungere solo se stesso. In caso di errori usa /rimuovimi e potrai rifare la procedura. "
+                         "Ognuno può unirsi a più gruppi, /rimuovimi ti toglierà da tutti i grupppi. "
+                         "Ogni altro messaggio sarà ignorato, usa /avvio per verificare che il bot sia attivo.",
         "id_entry": "Inserisci l'id",
         "name_entry": "Inserisci il tuo nome",
         "recipient": "Il tuo destinatario è ",

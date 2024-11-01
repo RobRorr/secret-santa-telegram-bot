@@ -1,6 +1,7 @@
 import configparser
 
-def setconfig(file_path):
+
+def set_config(file_path):
     config = configparser.ConfigParser()
     config.read(file_path)
     initial_config = {}
