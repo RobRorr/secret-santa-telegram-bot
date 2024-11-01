@@ -13,7 +13,7 @@ dictionary = {
 
         "admin_negative_response": "You are not the administrator",
         "admin_positive_response": "You are the administrator",
-        "alredy_in": "You are already in the group",
+        "already_in": "You are already in the group",
         "confirmation_no_list": "You're in! (No list saved)",
         "confirmation_list": "You're in!",
         "done": "Done!",
@@ -48,7 +48,7 @@ dictionary = {
 
         "admin_negative_response": "Non sei l'amministratore",
         "admin_positive_response": "Sei l'amministratore",
-        "alredy_in": "Sei già nel gruppo",
+        "already_in": "Sei già nel gruppo",
         "confirmation_no_list": "Sei dentro! (nessuna lista salvata)",
         "confirmation_list": "Sei dentro!",
         "done": "Fatto!",
