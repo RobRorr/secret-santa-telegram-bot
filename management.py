@@ -5,11 +5,11 @@ import random
 import telebot
 import validators
 
-import setconfiguration
+import bot_config
 from languages import dictionary
 
-bot = telebot.TeleBot(setconfiguration.telegram_token)
-language = setconfiguration.language
+bot = telebot.TeleBot(bot_config.telegram_token)
+language = bot_config.language
 
 
 def add_participant(participant_list, element):
@@ -17,7 +17,7 @@ def add_participant(participant_list, element):
 
 
 def create_list_step(message):
-    if os.path.exists(setconfiguration.json_file_path):
+    if os.path.exists(setconfig.json_file_path):
         data = read_data(message)
         if message.text in data:
             bot.reply_to(message, dictionary[language]['group_exists'])
@@ -84,7 +84,7 @@ def take_chat_id_list(list_of_triples):
 
 def read_data(message):
     try:
-        with open(setconfiguration.json_file_path, 'r') as f:
+        with open(bot_config.json_file_path, 'r') as f:
             data = json.load(f)
     except Exception as e:
         bot.reply_to(message, dictionary[language]['error'])
@@ -93,7 +93,7 @@ def read_data(message):
 
 def write_data(message, data):
     try:
-        with open(setconfiguration.json_file_path, 'w') as f:
+        with open(bot_config.json_file_path, 'w') as f:
             json.dump(data, f)
     except Exception as e:
         bot.reply_to(message, dictionary[language]['error'])

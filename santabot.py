@@ -1,12 +1,12 @@
 import telebot
 import validators
 
+import bot_config
 import management
-import setconfiguration
 from languages import dictionary
 
-bot = telebot.TeleBot(setconfiguration.telegram_token)
-language = setconfiguration.language
+bot = telebot.TeleBot(bot_config.telegram_token)
+language = bot_config.language
 
 
 # Standard command
@@ -78,7 +78,7 @@ def start(message):
 # Create list
 @bot.message_handler(commands=[dictionary[language]['command_create_group']])
 def start(message):
-    if message.chat.id == setconfiguration.admin_id:
+    if message.chat.id == bot_config.admin_id:
         msg = bot.reply_to(message, dictionary[language]['group_name_entry'])
         bot.register_next_step_handler(msg, management.create_list_step)
     else:
@@ -88,7 +88,7 @@ def start(message):
 # Start secret santa
 @bot.message_handler(commands=[dictionary[language]['command_secret_santa']])
 def start_single_group(message):
-    if message.chat.id == setconfiguration.admin_id:
+    if message.chat.id == bot_config.admin_id:
         msg = bot.reply_to(message, dictionary[language]['group_name_entry'])
         bot.register_next_step_handler(msg, management.secret_santa)
     else:
@@ -98,7 +98,7 @@ def start_single_group(message):
 # Start secret santa
 @bot.message_handler(commands=[dictionary[language]['command_secret_santa_all']])
 def start(message):
-    if message.chat.id == setconfiguration.admin_id:
+    if message.chat.id == bot_config.admin_id:
         management.secret_santa_all(message)
         bot.reply_to(message, dictionary[language]['secret_santa'])
     else:
@@ -108,7 +108,7 @@ def start(message):
 # Remove all participants from all lists
 @bot.message_handler(commands=[dictionary[language]['command_remove_all']])
 def start(message):
-    if message.chat.id == setconfiguration.admin_id:
+    if message.chat.id == bot_config.admin_id:
         management.remove_all_participants(message)
     else:
         bot.reply_to(message, dictionary[language]['admin_negative_response'])
@@ -117,7 +117,7 @@ def start(message):
 # Remove participant from all lists
 @bot.message_handler(commands=[dictionary[language]['command_remove_participant']])
 def start(message):
-    if message.chat.id == setconfiguration.admin_id:
+    if message.chat.id == bot_config.admin_id:
         msg = bot.reply_to(message, dictionary[language]['id_entry'])
         bot.register_next_step_handler(msg, management.remove_id_step)
     else:
@@ -127,7 +127,7 @@ def start(message):
 # Check admin
 @bot.message_handler(commands=[dictionary[language]['command_check_admin']])
 def start(message):
-    if message.chat.id == setconfiguration.admin_id:
+    if message.chat.id == bot_config.admin_id:
         bot.reply_to(message, dictionary[language]['admin_positive_response'])
     else:
         bot.reply_to(message, dictionary[language]['admin_negative_response'])
