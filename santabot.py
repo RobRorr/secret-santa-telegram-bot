@@ -46,23 +46,23 @@ def group_name_step(message):
 
 
 # 3rd step of /addme
-def name_user_step(message, participant_list):
-    msg = bot.reply_to(message, lex['exclusion_user'])
-    bot.register_next_step_handler(msg, exclusion_user_step, participant_list, message.text)
+def name_user_step(message, group_name):
+    participant_list = management.get_participant_list(group_name) or lex['no_participants']
+    msg = bot.reply_to(message, participant_list + " " + lex['exclusion_user'])
+    bot.register_next_step_handler(msg, exclusion_user_step, group_name, message.text)
 
 
 # 4th step of /addme
-#TODO: auto management
-def exclusion_user_step(message, participant_list, username):
+def exclusion_user_step(message, group_name, username):
     msg = bot.reply_to(message, lex['wish_list'])
-    bot.register_next_step_handler(msg, link_step, participant_list, username, message.text)
+    bot.register_next_step_handler(msg, link_step, group_name, username, message.text)
 
 
 # 5th step of /addme
-def link_step(message, participant_list, username, exclusion_recipient):
+def link_step(message, group_name, username, exclusion_recipient):
     data = management.read_data(message)
     element = [message.chat.id, username, exclusion_recipient, message.text]
-    data[participant_list].append(element)
+    data[group_name].append(element)
     management.write_data(message, data)
     if not validators.url(message.text):
         bot.reply_to(message, lex['confirmation_no_list'])
@@ -70,13 +70,26 @@ def link_step(message, participant_list, username, exclusion_recipient):
         bot.reply_to(message, lex['confirmation_list'])
 
 
+# Get group participant list
+@bot.message_handler(commands=[lex['command_group_participant_list']])
+def start(message):
+    if not message.chat.type == 'group':
+        msg = bot.reply_to(message, lex['group_name_entry'])
+        bot.register_next_step_handler(msg, get_participant)
+
+
+def get_participant(message):
+    participant_list = management.get_participant_list(message.text) or lex['no_participants']
+    bot.reply_to(message, participant_list)
+
+
 # Remove user from all lists
 @bot.message_handler(commands=[lex['command_remove_me']])
 def start(message):
     if not message.chat.type == 'group':
         data = management.read_data(message)
-        for participant_list in data:
-            data[participant_list] = management.remove_participant(data[participant_list], message.chat.id)
+        for group_name in data:
+            data[group_name] = management.remove_participant(data[group_name], message.chat.id)
         management.write_data(message, data)
         bot.reply_to(message, lex['done'])
 

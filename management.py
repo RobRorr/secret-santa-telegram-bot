@@ -79,7 +79,7 @@ def start_secret_santa(participant_list):
 
 
 def gift_couples(participant_list):
-    for attempt in range(len(participant_list)):
+    for attempt in range(len(participant_list) ^ 2):
         recipient_list = random.sample(participant_list, len(participant_list))
         valid = True
 
@@ -90,6 +90,16 @@ def gift_couples(participant_list):
 
         if valid:
             return [list[participant_list[i], recipient_list[i]] for i in range(len(participant_list))]
+
+
+def get_participant_list(group_name):
+    data = read_data(group_name)
+    participant_list = []
+    if group_name in data:
+        group = data[group_name]
+        for i in range(len(group)):
+            participant_list.append(group[i][1])
+    return ",\n".join(participant_list)
 
 
 def take_chat_id_list(list_of_triples):
