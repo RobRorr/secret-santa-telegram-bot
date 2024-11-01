@@ -47,14 +47,21 @@ def group_name_step(message):
 
 # 3rd step of /addme
 def name_user_step(message, participant_list):
-    msg = bot.reply_to(message, lex['wish_list'])
-    bot.register_next_step_handler(msg, link_step, participant_list, message.text)
+    msg = bot.reply_to(message, lex['exclusion_user'])
+    bot.register_next_step_handler(msg, exclusion_user_step, participant_list, message.text)
 
 
 # 4th step of /addme
-def link_step(message, participant_list, username):
+#TODO: auto management
+def exclusion_user_step(message, participant_list, username):
+    msg = bot.reply_to(message, lex['wish_list'])
+    bot.register_next_step_handler(msg, link_step, participant_list, username, message.text)
+
+
+# 5th step of /addme
+def link_step(message, participant_list, username, exclusion_recipient):
     data = management.read_data(message)
-    element = [message.chat.id, username, message.text]
+    element = [message.chat.id, username, exclusion_recipient, message.text]
     data[participant_list].append(element)
     management.write_data(message, data)
     if not validators.url(message.text):

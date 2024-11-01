@@ -51,7 +51,7 @@ def remove_id_step(message):
 
 
 def remove_participant(participant_list, element):
-    return [triple for triple in participant_list if triple[0] != int(element)]
+    return [quartet for quartet in participant_list if quartet[0] != int(element)]
 
 
 def secret_santa(message):
@@ -69,14 +69,27 @@ def secret_santa_all(message):
 
 
 def start_secret_santa(participant_list):
-    random.shuffle(participant_list)
-    for i in range(len(participant_list)):
-        recipient = participant_list[(i + 1) % len(participant_list)]
-        if not validators.url(recipient[2]):
-            msg = lex['recipient'] + recipient[1]
+    couples = gift_couples(participant_list) or {}
+    for i in range(len(couples)):
+        if not validators.url(couples[1][3]):
+            msg = lex['recipient'] + couples[1][0]
         else:
-            msg = lex['recipient'] + recipient[1] + " : " + recipient[2]
+            msg = lex['recipient'] + couples[1][0] + " : " + couples[1][1]
         bot.send_message(participant_list[i][0], msg)
+
+
+def gift_couples(participant_list):
+    for attempt in range(len(participant_list)):
+        recipient_list = random.sample(participant_list, len(participant_list))
+        valid = True
+
+        for i in range(len(participant_list)):
+            if participant_list[i][3] == recipient_list[i][1] or participant_list[i][1] == recipient_list[i][1]:
+                valid = False
+                break
+
+        if valid:
+            return [list[participant_list[i], recipient_list[i]] for i in range(len(participant_list))]
 
 
 def take_chat_id_list(list_of_triples):
