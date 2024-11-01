@@ -17,7 +17,7 @@ def add_participant(participant_list, element):
 
 
 def create_list_step(message):
-    if os.path.exists(setconfig.json_file_path):
+    if os.path.exists(bot_config.json_file_path):
         data = read_data(message)
         if message.text in data:
             bot.reply_to(message, dictionary[language]['group_exists'])
