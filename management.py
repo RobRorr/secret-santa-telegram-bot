@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import random
 
@@ -88,6 +89,7 @@ def read_data(message):
             data = json.load(f)
     except Exception as e:
         bot.reply_to(message, dictionary[language]['error'])
+        logging.debug(e)
     return data
 
 
@@ -97,3 +99,4 @@ def write_data(message, data):
             json.dump(data, f)
     except Exception as e:
         bot.reply_to(message, dictionary[language]['error'])
+        logging.debug(e)
