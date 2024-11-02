@@ -78,6 +78,7 @@ def start(message):
         bot.register_next_step_handler(msg, get_participant)
 
 
+# 2nd step of /participants
 def get_participant(message):
     participant_list = management.get_participant_list(message.text) or lex['no_participants']
     bot.reply_to(message, participant_list)
@@ -91,6 +92,7 @@ def start(message):
         bot.register_next_step_handler(msg, get_group_step)
 
 
+# 2nd step of /excluderecipient
 def get_group_step(message):
     data = management.read_data(message)
     if message.text not in data:
@@ -100,6 +102,7 @@ def get_group_step(message):
         bot.register_next_step_handler(msg, set_exclusion_step, message.text)
 
 
+# 3rd step of /excluderecipient
 def set_exclusion_step(message, group_name):
     data = management.read_data(message)
     element = management.get_participant(group_name, message.chat.id)
