@@ -80,8 +80,16 @@ def start(message):
 
 # 2nd step of /participants
 def get_participant(message):
-    participant_list = management.get_participant_list(message.text) or lex['no_participants']
-    bot.reply_to(message, participant_list)
+    data = management.read_data(message)
+    if message.text not in data:
+        bot.reply_to(message, lex['group_no_exists'])
+    else:
+        element = management.get_participant(message.text, message.chat.id)
+        if element is not None:
+            participant_list = management.get_participant_list(message.text) or lex['no_participants']
+            bot.reply_to(message, participant_list)
+        else:
+            bot.reply_to(message, lex['user_not_in'])
 
 
 # Set exclusion recipient

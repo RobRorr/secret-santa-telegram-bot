@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from random import shuffle
 
 import telebot
 import validators
@@ -27,6 +28,70 @@ def create_group(message):
         data = {message.text: []}
         write_data(message, data)
         bot.reply_to(message, lex['group_added'])
+
+
+def create_valid_pairs_map(participant_list):
+    valid_pairs = {}
+    shuffle(participant_list)
+    for giver in participant_list:
+        giver_key = tuple(giver)
+        valid_pairs[giver_key] = [
+            receiver for receiver in participant_list
+            if receiver[1] != giver[1] and receiver[1] != giver[2]
+        ]
+    return valid_pairs
+
+
+def find_pairs(participant_list, valid_pairs, index=0, pairs=None, used_receivers=None):
+    if pairs is None:
+        pairs = []
+    if used_receivers is None:
+        used_receivers = set()
+    if index == len(participant_list):
+        return pairs
+    giver = participant_list[index]
+    giver_key = tuple(giver)
+    for receiver in valid_pairs.get(giver_key, []):
+        if receiver[1] in used_receivers:
+            continue
+        pairs.append((giver, receiver))
+        used_receivers.add(receiver[1])
+        result = find_pairs(participant_list, valid_pairs, index + 1, pairs, used_receivers)
+        if result:
+            return result
+        pairs.pop()
+        used_receivers.remove(receiver[1])
+    return None
+
+
+def get_participant(group_name, username):
+    data = read_data(group_name)
+    if group_name in data:
+        group = data[group_name]
+        for i in range(len(group)):
+            if group[i][0] == username:
+                return group[i]
+    return None
+
+
+def get_participant_list(group_name):
+    data = read_data(group_name)
+    participant_list = []
+    if group_name in data:
+        group = data[group_name]
+        for i in range(len(group)):
+            participant_list.append(group[i][1])
+    if participant_list:
+        return lex['participant_list_header'] + ",\n".join(participant_list)
+    else:
+        return None
+
+
+def gift_pairs(participant_list):
+    valid_pairs = create_valid_pairs_map(participant_list)
+    sorted_participants = sorted(participant_list, key=lambda x: len(valid_pairs[tuple(x)]))
+    result = find_pairs(sorted_participants, valid_pairs)
+    return result
 
 
 def remove_all_participants(message):
@@ -75,69 +140,6 @@ def start_secret_santa(participant_list):
             else:
                 msg = lex['recipient'] + recipient[1] + " : " + recipient[3]
             bot.send_message(giver[0], msg)
-
-
-def create_valid_pairs_map(participant_list):
-    valid_pairs = {}
-    for giver in participant_list:
-        giver_key = tuple(giver)
-        valid_pairs[giver_key] = [
-            receiver for receiver in participant_list
-            if receiver[1] != giver[1] and receiver[1] != giver[2]
-        ]
-    return valid_pairs
-
-
-def find_pairs(participant_list, valid_pairs, index=0, pairs=None, used_receivers=None):
-    if pairs is None:
-        pairs = []
-    if used_receivers is None:
-        used_receivers = set()
-    if index == len(participant_list):
-        return pairs
-    giver = participant_list[index]
-    giver_key = tuple(giver)
-    for receiver in valid_pairs.get(giver_key, []):
-        if receiver[1] in used_receivers:
-            continue
-        pairs.append((giver, receiver))
-        used_receivers.add(receiver[1])
-        result = find_pairs(participant_list, valid_pairs, index + 1, pairs, used_receivers)
-        if result:
-            return result
-        pairs.pop()
-        used_receivers.remove(receiver[1])
-    return None
-
-
-def gift_pairs(participant_list):
-    valid_pairs = create_valid_pairs_map(participant_list)
-    sorted_participants = sorted(participant_list, key=lambda x: len(valid_pairs[tuple(x)]))
-    result = find_pairs(sorted_participants, valid_pairs)
-    return result
-
-
-def get_participant(group_name, username):
-    data = read_data(group_name)
-    if group_name in data:
-        group = data[group_name]
-        for i in range(len(group)):
-            if group[i][0] == username:
-                return group[i]
-    return None
-
-
-def get_participant_list(group_name):
-    data = read_data(group_name)
-    participant_list = []
-    if group_name in data:
-        group = data[group_name]
-        for i in range(len(group)):
-            participant_list.append(group[i][1])
-    if participant_list:
-        return lex['participant_list_header'] + ",\n".join(participant_list)
-    else:
-        return None
 
 
 def take_chat_id_list(list_of_triples):
