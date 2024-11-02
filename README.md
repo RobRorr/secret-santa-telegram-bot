@@ -4,7 +4,7 @@ A simple Telegram bot that manages the Secret Santa.
 # Usage
 The admin creates the group.
 Each participant must add themselves to the list using the private Telegram chat with the bot. 
-It uses chat IDs and a json file to reconize and manage the participants.
+It uses chat IDs and a json file to recognize and manage the participants.
 
 # Configuration
 Modify the config.ini file before starting.
@@ -31,6 +31,9 @@ Add user to secret santa group
 
 `/removeme`  
 Remove user from all secret santa groups
+
+`/excluderecipient`  
+Set recipient exclusion
 
 ###### Admin
 `/creategroup`  

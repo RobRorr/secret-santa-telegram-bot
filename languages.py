@@ -27,7 +27,8 @@ dictionary = {
         "help_response": "Use /addme to add yourself to the group of participants and follow the instructions until the confirmation of insertion, "
                          "at the right time you will receive a message with your recipient's name and wish list if he has one. "
                          "Everyone can only add themselves. In case of errors, use /remove me and you can redo the procedure. "
-                         "Everyone can join multiple groups, /remove me will remove you from all groups."
+                         "Everyone can join multiple groups, /remove me will remove you from all groups. "
+                         "Use /excluderecipient to update the possible excluded recipient. "
                          "Any other messages will be ignored, use /start to verify that the bot is active.",
         "id_entry": "Insert the ID",
         "no_participants": "There are no participants in this group",
@@ -69,6 +70,7 @@ dictionary = {
                          "al momento giusto riceverai un messaggio con il nome del tuo destinatario e la lista desideri se ne ha una. "
                          "Ognuno può aggiungere solo se stesso. In caso di errori usa /rimuovimi e potrai rifare la procedura. "
                          "Ognuno può unirsi a più gruppi, /rimuovimi ti toglierà da tutti i grupppi. "
+                         "Usa /escludidestinatario per aggiornare il possibile destinatario escluso. "
                          "Ogni altro messaggio sarà ignorato, usa /avvio per verificare che il bot sia attivo.",
         "id_entry": "Inserisci l'id",
         "no_participants": "Non ci sono partecipanti in questo gruppo",
