@@ -65,45 +65,48 @@ def secret_santa_all(message):
 
 def start_secret_santa(participant_list):
     couples = gift_pairs(participant_list) or []
-    for i in range(len(couples)):
-        giver, recipient = couples[i]
-        if not validators.url(recipient[3]):
-            msg = lex['recipient'] + recipient[1]
-        else:
-            msg = lex['recipient'] + recipient[1] + " : " + recipient[3]
-        bot.send_message(giver[0], msg)
+    if len(couples) == 0:
+        logging.debug("No valid couples found")
+    else:
+        for i in range(len(couples)):
+            giver, recipient = couples[i]
+            if not validators.url(recipient[3]):
+                msg = lex['recipient'] + recipient[1]
+            else:
+                msg = lex['recipient'] + recipient[1] + " : " + recipient[3]
+            bot.send_message(giver[0], msg)
 
 
 def create_valid_pairs_map(participant_list):
     valid_pairs = {}
     for giver in participant_list:
-        valid_pairs[tuple(giver)] = [
+        giver_key = tuple(giver)
+        valid_pairs[giver_key] = [
             receiver for receiver in participant_list
-            if receiver[1] != giver[1] and receiver[1] != giver[3]
+            if receiver[1] != giver[1] and receiver[1] != giver[2]
         ]
     return valid_pairs
 
 
-def find_pairs(participant_list, valid_pairs, index=0, pairs=None, cache=None):
+def find_pairs(participant_list, valid_pairs, index=0, pairs=None, used_receivers=None):
     if pairs is None:
         pairs = []
-    if cache is None:
-        cache = {}
+    if used_receivers is None:
+        used_receivers = set()
     if index == len(participant_list):
         return pairs
     giver = participant_list[index]
     giver_key = tuple(giver)
-    for receiver in valid_pairs[giver_key]:
-        key = (giver[1], receiver[1])
-        if key in cache:
+    for receiver in valid_pairs.get(giver_key, []):
+        if receiver[1] in used_receivers:
             continue
         pairs.append((giver, receiver))
-        cache[key] = True
-        result = find_pairs(participant_list, valid_pairs, index + 1, pairs, cache)
+        used_receivers.add(receiver[1])
+        result = find_pairs(participant_list, valid_pairs, index + 1, pairs, used_receivers)
         if result:
             return result
         pairs.pop()
-        cache.pop(key, None)
+        used_receivers.remove(receiver[1])
     return None
 
 
