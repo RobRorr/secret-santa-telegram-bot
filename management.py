@@ -13,11 +13,7 @@ bot = telebot.TeleBot(bot_config.telegram_token)
 lex = dictionary[bot_config.language]
 
 
-def add_participant(participant_list, element):
-    return participant_list.append(element)
-
-
-def create_list_step(message):
+def create_group(message):
     if os.path.exists(bot_config.json_file_path):
         data = read_data(message)
         if message.text in data:
@@ -92,6 +88,16 @@ def gift_couples(participant_list):
             return [list[participant_list[i], recipient_list[i]] for i in range(len(participant_list))]
 
 
+def get_participant(group_name, username):
+    data = read_data(group_name)
+    if group_name in data:
+        group = data[group_name]
+        for i in range(len(group)):
+            if group[i][0] == username:
+                return group[i]
+    return None
+
+
 def get_participant_list(group_name):
     data = read_data(group_name)
     participant_list = []
@@ -110,10 +116,10 @@ def read_data(message):
     try:
         with open(bot_config.json_file_path, 'r') as f:
             data = json.load(f)
+            return data
     except Exception as e:
         bot.reply_to(message, lex['error'])
         logging.debug(e)
-    return data
 
 
 def write_data(message, data):
