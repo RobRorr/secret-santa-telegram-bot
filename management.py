@@ -64,13 +64,14 @@ def secret_santa_all(message):
 
 
 def start_secret_santa(participant_list):
-    couples = gift_pairs(participant_list) or {}
+    couples = gift_pairs(participant_list) or []
     for i in range(len(couples)):
-        if not validators.url(couples[1][3]):
-            msg = lex['recipient'] + couples[1][0]
+        giver, recipient = couples[i]
+        if not validators.url(recipient[3]):
+            msg = lex['recipient'] + recipient[1]
         else:
-            msg = lex['recipient'] + couples[1][0] + " : " + couples[1][1]
-        bot.send_message(participant_list[i][0], msg)
+            msg = lex['recipient'] + recipient[1] + " : " + recipient[3]
+        bot.send_message(giver[0], msg)
 
 
 def create_valid_pairs_map(participant_list):
@@ -130,7 +131,10 @@ def get_participant_list(group_name):
         group = data[group_name]
         for i in range(len(group)):
             participant_list.append(group[i][1])
-    return ",\n".join(participant_list)
+    if participant_list:
+        return lex['participant_list_header'] + ",\n".join(participant_list)
+    else:
+        return None
 
 
 def take_chat_id_list(list_of_triples):
