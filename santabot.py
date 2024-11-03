@@ -1,3 +1,5 @@
+import logging
+
 import telebot
 import validators
 
@@ -64,6 +66,7 @@ def link_step(message, group_name, username, exclusion_recipient):
     element = [message.chat.id, username, exclusion_recipient, message.text]
     data[group_name].append(element)
     management.write_data(message, data)
+    logging.info("Added %s to %s", username, group_name)
     if not validators.url(message.text):
         bot.reply_to(message, lex['confirmation_no_list'])
     else:
@@ -124,7 +127,7 @@ def set_exclusion_step(message, group_name):
         bot.reply_to(message, lex['user_not_in'])
 
 
-# Remove user from all lists
+# Remove user from all groups
 @bot.message_handler(commands=[lex['command_remove_me']])
 def start(message):
     if not message.chat.type == 'group':

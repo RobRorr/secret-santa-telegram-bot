@@ -96,16 +96,16 @@ def gift_pairs(participant_list):
 
 def remove_all_participants(message):
     data = read_data(message)
-    for participant_list in data:
-        data[participant_list] = []
+    for group_name in data:
+        data[group_name] = []
     write_data(message, data)
     bot.reply_to(message, lex['done'])
 
 
 def remove_id_step(message):
     data = read_data(message)
-    for participant_list in data:
-        data[participant_list] = remove_participant(data[participant_list], message.text)
+    for group_name in data:
+        data[group_name] = remove_participant(data[group_name], message.text)
     write_data(message, data)
     bot.reply_to(message, lex['done'])
 
@@ -124,12 +124,12 @@ def secret_santa(message):
 
 def secret_santa_all(message):
     data = read_data(message)
-    for l in data:
-        start_secret_santa(data[l])
+    for group_name in data:
+        start_secret_santa(data[group_name])
 
 
-def start_secret_santa(participant_list):
-    couples = gift_pairs(participant_list) or []
+def start_secret_santa(group_name):
+    couples = gift_pairs(group_name) or []
     if len(couples) == 0:
         logging.debug("No valid couples found")
     else:
