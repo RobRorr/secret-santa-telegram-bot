@@ -70,7 +70,7 @@ dictionary = {
         "help_response": "Usa /aggiungimi per aggiungerti al gruppo dei partecipanti e segui le istruzioni fino alla conferma di inserimento, "
                          "al momento giusto riceverai un messaggio con il nome del tuo destinatario e la lista desideri se ne ha una. "
                          "Ognuno può aggiungere solo se stesso. In caso di errori usa /rimuovimi e potrai rifare la procedura. "
-                         "Ognuno può unirsi a più gruppi, /rimuovimi ti toglierà da tutti i grupppi. "
+                         "Ognuno può unirsi a più gruppi, /rimuovimi ti toglierà da tutti i gruppi. "
                          "Usa /escludidestinatario per aggiornare il possibile destinatario escluso. "
                          "Ogni altro messaggio sarà ignorato, usa /avvio per verificare che il bot sia attivo.",
         "id_entry": "Inserisci l'id",

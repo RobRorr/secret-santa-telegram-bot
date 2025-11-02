@@ -1,16 +1,16 @@
 import json
 import logging
 import os
-from random import shuffle
+import random
 
 import telebot
-import validators
 
 import bot_config
 from languages import dictionary
 
-bot = telebot.TeleBot(bot_config.telegram_token)
+max_retry = bot_config.max_retry
 lex = dictionary[bot_config.language]
+bot = telebot.TeleBot(bot_config.telegram_token)
 
 
 def create_group(message):
@@ -28,40 +28,6 @@ def create_group(message):
         data = {message.text: []}
         write_data(message, data)
         bot.reply_to(message, lex['group_added'])
-
-
-def create_valid_pairs_map(participant_list):
-    valid_pairs = {}
-    shuffle(participant_list)
-    for giver in participant_list:
-        giver_key = tuple(giver)
-        valid_pairs[giver_key] = [
-            receiver for receiver in participant_list
-            if receiver[1] != giver[1] and receiver[1] != giver[2]
-        ]
-    return valid_pairs
-
-
-def find_pairs(participant_list, valid_pairs, index=0, pairs=None, used_receivers=None):
-    if pairs is None:
-        pairs = []
-    if used_receivers is None:
-        used_receivers = set()
-    if index == len(participant_list):
-        return pairs
-    giver = participant_list[index]
-    giver_key = tuple(giver)
-    for receiver in valid_pairs.get(giver_key, []):
-        if receiver[1] in used_receivers:
-            continue
-        pairs.append((giver, receiver))
-        used_receivers.add(receiver[1])
-        result = find_pairs(participant_list, valid_pairs, index + 1, pairs, used_receivers)
-        if result:
-            return result
-        pairs.pop()
-        used_receivers.remove(receiver[1])
-    return None
 
 
 def get_participant(group_name, username):
@@ -87,11 +53,28 @@ def get_participant_list(group_name):
         return None
 
 
-def gift_pairs(participant_list):
-    valid_pairs = create_valid_pairs_map(participant_list)
-    sorted_participants = sorted(participant_list, key=lambda x: len(valid_pairs[tuple(x)]))
-    result = find_pairs(sorted_participants, valid_pairs)
-    return result
+def create_gift_pairs(participants):
+    for _ in range(max_retry):
+        random.shuffle(participants)
+        givers = participants[:]
+        receivers = participants[:]
+        pairs = []
+        valid = True
+        for giver in givers:
+            found = False
+            while receivers and not found:
+                receiver = random.choice(receivers)
+                if receiver == giver or giver[2] == receiver[1]:
+                    continue
+                pairs.append((giver, receiver))
+                receivers.remove(receiver)
+                found = True
+            if not found:
+                valid = False
+                break
+        if valid and len(pairs) == len(participants):
+            return pairs
+    return None
 
 
 def remove_all_participants(message):
@@ -129,7 +112,7 @@ def secret_santa_all(message):
 
 
 def start_secret_santa(group_name):
-    couples = gift_pairs(group_name) or []
+    couples = create_gift_pairs(group_name) or []
     if len(couples) == 0:
         logging.debug("No valid couples found")
     else:

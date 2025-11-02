@@ -18,5 +18,6 @@ config = set_config(config_file_path)
 
 json_file_path = config.get('auth', {}).get('json_file_path')
 telegram_token = config.get('auth', {}).get('telegram_token')
+max_retry = int(config.get('auth', {}).get('max_retry'))
 admin_id = int(config.get('auth', {}).get('admin', 0))
 language = config.get('auth', {}).get('language')
