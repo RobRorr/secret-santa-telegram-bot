@@ -19,7 +19,7 @@ dictionary = {
         "confirmation_list": "You're in!",
         "done": "Done!",
         "error": "Error",
-        "exclusion_user": "Do you want to exclude a recipient? (Enter name or answer no)",
+        "exclusion_user": "Do you want to exclude a recipient? (Enter name (o name divided by \" | \") or answer no)",
         "group_added": "Group added",
         "group_entry": "Insert the group name",
         "group_exists": "The group already exists",

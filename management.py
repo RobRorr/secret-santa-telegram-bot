@@ -62,9 +62,12 @@ def create_gift_pairs(participants):
         valid = True
         for giver in givers:
             found = False
+            excluded_receivers = [excluded_receiver.strip()
+                                  for excluded_receiver in giver[2].split('|')
+                                  if excluded_receiver.strip()]
             while receivers and not found:
                 receiver = random.choice(receivers)
-                if receiver == giver or giver[2] == receiver[1]:
+                if giver == receiver or receiver[1] in excluded_receivers:
                     continue
                 pairs.append((giver, receiver))
                 receivers.remove(receiver)
