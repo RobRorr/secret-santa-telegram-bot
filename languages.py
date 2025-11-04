@@ -62,7 +62,7 @@ dictionary = {
         "confirmation_list": "Sei dentro!",
         "done": "Fatto!",
         "error": "Errore",
-        "exclusion_user": "Vuoi escludere un destinatario? (Inserisci il nome oppure rispondi no)",
+        "exclusion_user": "Vuoi escludere un destinatario? (Inserisci il nome (o i nomi separati da \" | \") oppure rispondi no)",
         "group_added": "Gruppo aggiunto",
         "group_entry": "Inserisci il nome del gruppo",
         "group_exists": "Il gruppo esiste già",
