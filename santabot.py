@@ -50,20 +50,26 @@ def group_name_step(message):
 # 3rd step of add_me
 def name_user_step(message, group_name):
     participant_list = management.get_participant_list(group_name) or lex['no_participants']
-    msg = bot.reply_to(message, participant_list + "\n" + lex['exclusion_user'])
+    msg = bot.reply_to(message, participant_list + "\n" + lex['recipient_exclusion'])
     bot.register_next_step_handler(msg, recipient_exclusion_step, group_name, message.text)
 
 
 # 4th step of add_me
 def recipient_exclusion_step(message, group_name, username):
-    msg = bot.reply_to(message, lex['wish_list'])
-    bot.register_next_step_handler(msg, link_step, group_name, username, message.text)
+    msg = bot.reply_to(message, lex['giver_exclusion'])
+    bot.register_next_step_handler(msg, giver_exclusion_step, group_name, username, message.text)
 
 
 # 5th step of add_me
-def link_step(message, group_name, username, recipient_exclusion):
+def giver_exclusion_step(message, group_name, username, recipient_exclusion):
+    msg = bot.reply_to(message, lex['wish_list'])
+    bot.register_next_step_handler(msg, link_step, group_name, username, recipient_exclusion, message.text)
+
+
+# 6th step of add_me
+def link_step(message, group_name, username, recipient_exclusion, giver_exclusion):
     data = management.read_data(message)
-    element = [message.chat.id, username, recipient_exclusion, message.text]
+    element = [message.chat.id, username, recipient_exclusion, giver_exclusion, message.text]
     data[group_name].append(element)
     management.write_data(message, data)
     logging.info("Added %s to %s", username, group_name)
@@ -96,29 +102,61 @@ def get_participant(message):
 
 
 # Set recipient exclusion: exclude_recipient
-@bot.message_handler(commands=[lex['command_exclusion']])
+@bot.message_handler(commands=[lex['command_exclusion_recipient']])
 def start(message):
     if not message.chat.type == 'group':
         msg = bot.reply_to(message, lex['group_entry'])
-        bot.register_next_step_handler(msg, get_group_step)
+        bot.register_next_step_handler(msg, get_group_recipient_step)
 
 
 # 2nd step of exclude_recipient
-def get_group_step(message):
+def get_group_recipient_step(message):
     data = management.read_data(message)
     if message.text not in data:
         bot.reply_to(message, lex['group_no_exists'])
     else:
         msg = bot.reply_to(message, lex['recipient_entry'])
-        bot.register_next_step_handler(msg, set_exclusion_step, message.text)
+        bot.register_next_step_handler(msg, set_exclusion_recipient_step, message.text)
 
 
 # 3rd step of exclude_recipient
-def set_exclusion_step(message, group_name):
+def set_exclusion_recipient_step(message, group_name):
     data = management.read_data(message)
     element = management.get_participant(group_name, message.chat.id)
     if element is not None:
-        new_element = [element[0], element[1], message.text, element[3]]
+        new_element = [element[0], element[1], message.text, element[3], element[4]]
+        data[group_name] = management.remove_participant(data[group_name], message.chat.id)
+        data[group_name].append(new_element)
+        management.write_data(message, data)
+        bot.reply_to(message, lex['done'])
+    else:
+        bot.reply_to(message, lex['user_not_in'])
+
+
+# Set giver exclusion: exclude_giver
+@bot.message_handler(commands=[lex['command_exclusion_giver']])
+def start(message):
+    if not message.chat.type == 'group':
+        msg = bot.reply_to(message, lex['group_entry'])
+        bot.register_next_step_handler(msg, get_giver_group_step)
+
+
+# 2nd step of exclude_giver
+def get_giver_group_step(message):
+    data = management.read_data(message)
+    if message.text not in data:
+        bot.reply_to(message, lex['group_no_exists'])
+    else:
+        msg = bot.reply_to(message, lex['giver_entry'])
+        bot.register_next_step_handler(msg, set_giver_exclusion_step, message.text)
+
+
+# 3rd step of exclude_giver
+def set_giver_exclusion_step(message, group_name):
+    data = management.read_data(message)
+    element = management.get_participant(group_name, message.chat.id)
+    if element is not None:
+        new_element = [element[0], element[1], element[2], message.text, element[4]]
         data[group_name] = management.remove_participant(data[group_name], message.chat.id)
         data[group_name].append(new_element)
         management.write_data(message, data)
@@ -139,7 +177,7 @@ def start(message):
 
 
 ##Admin commands
-# Create list
+# Create group
 @bot.message_handler(commands=[lex['command_create_group']])
 def start(message):
     if message.chat.id == bot_config.admin_id:
@@ -159,7 +197,7 @@ def start_single_group(message):
         bot.reply_to(message, lex['admin_negative_response'])
 
 
-# Start secret santa
+# Start all secret santa
 @bot.message_handler(commands=[lex['command_secret_santa_all']])
 def start(message):
     if message.chat.id == bot_config.admin_id:
@@ -169,7 +207,7 @@ def start(message):
         bot.reply_to(message, lex['admin_negative_response'])
 
 
-# Remove all participants from all lists
+# Remove all participants from all groups
 @bot.message_handler(commands=[lex['command_remove_all']])
 def start(message):
     if message.chat.id == bot_config.admin_id:
@@ -178,7 +216,7 @@ def start(message):
         bot.reply_to(message, lex['admin_negative_response'])
 
 
-# Remove participant from all lists
+# Remove participant from all groups
 @bot.message_handler(commands=[lex['command_remove_participant']])
 def start(message):
     if message.chat.id == bot_config.admin_id:

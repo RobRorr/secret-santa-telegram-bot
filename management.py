@@ -4,6 +4,7 @@ import os
 import random
 
 import telebot
+import validators
 
 import bot_config
 from languages import dictionary
@@ -67,7 +68,10 @@ def create_gift_pairs(participants):
                                   if excluded_receiver.strip()]
             while receivers and not found:
                 receiver = random.choice(receivers)
-                if giver == receiver or receiver[1] in excluded_receivers:
+                excluded_givers = [excluded_givers.strip()
+                                   for excluded_givers in receiver[3].split('|')
+                                   if excluded_givers.strip()]
+                if giver == receiver or receiver[1] in excluded_receivers or giver[1] in excluded_givers:
                     continue
                 pairs.append((giver, receiver))
                 receivers.remove(receiver)
