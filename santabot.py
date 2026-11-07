@@ -236,4 +236,9 @@ def start(message):
 
 
 # Start bot
-bot.polling()
+bot.infinity_polling(
+    timeout=30,
+    long_polling_timeout=25,
+    skip_pending=False,
+    logger_level=logging.INFO
+)
