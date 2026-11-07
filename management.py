@@ -148,8 +148,8 @@ def read_data(message):
 
 def write_data(message, data):
     try:
-        with open(bot_config.json_file_path, 'w') as f:
-            json.dump(data, f)
-    except Exception as e:
+        with open(bot_config.json_file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    except (TypeError, ValueError, OSError) as e:
         bot.reply_to(message, lex['error'])
         logging.debug(e)
