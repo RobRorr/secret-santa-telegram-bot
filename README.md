@@ -44,6 +44,12 @@ Remove user from all secret santa groups
 `/excluderecipient`  
 Set recipient exclusion
 
+`/excludegiver`  
+Set givers exclusion
+
+`/exclusions`  
+Show group exclusions
+
 ###### Admin
 
 `/creategroup`  

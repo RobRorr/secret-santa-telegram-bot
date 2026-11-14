@@ -53,6 +53,8 @@ def get_participant_list(group_name):
     else:
         return None
 
+def get_exclusion_list(username):
+    return lex['recipient_exclusion_list'] + username[2] + '\n' + lex['giver_exclusion_list'] + username[3]
 
 def create_gift_pairs(participants):
     for _ in range(max_retry):

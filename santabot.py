@@ -100,6 +100,27 @@ def get_participant(message):
         else:
             bot.reply_to(message, lex['user_not_in'])
 
+# Get group exclusion list
+@bot.message_handler(commands=[lex['command_group_exclusion_list']])
+def start(message):
+    if not message.chat.type == 'group':
+        msg = bot.reply_to(message, lex['group_entry'])
+        bot.register_next_step_handler(msg, get_exclusions)
+
+
+# 2nd step of exclusions
+def get_exclusions(message):
+    data = management.read_data(message)
+    if message.text not in data:
+        bot.reply_to(message, lex['group_no_exists'])
+    else:
+        element = management.get_participant(message.text, message.chat.id)
+        if element is not None:
+            exclusion_list = management.get_exclusion_list(element) or lex['no_participants']
+            bot.reply_to(message, exclusion_list)
+        else:
+            bot.reply_to(message, lex['user_not_in'])
+
 
 # Set recipient exclusion: exclude_recipient
 @bot.message_handler(commands=[lex['command_exclusion_recipient']])
